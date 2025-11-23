@@ -56,7 +56,7 @@ function writeTextFileSync(pth: string, txt: string): void {
 
 // Read a JSON file.
 function readJsonFileSync(pth: string): any {
-  return JSON.parse(readTextFileSync(pth));
+  return JSON.parse(readTextFileSync(pth) || "{}");
 }
 
 
@@ -106,7 +106,6 @@ async function fetchPackageNpm(pkg: string, cwd: string) {
   fs.rmSync(npmrcPath, { recursive: true, force: true });
   fs.rmSync(manifestPath, { recursive: true, force: true });
   writeTextFileSync(npmrcPath, `@jsr:registry=https://npm.jsr.io/\n`);
-  await execCommand('npm', ['init', '-y'], cwd);
   await execCommand('npm', ['install', npmPkg], cwd);
   return readTextFileSync(manifestPath);
 }
@@ -118,8 +117,8 @@ async function publishPackageNpm(pub: PublishOptions, man: ManifestOptions, cwd:
   const npmrcPath     = path.join(cwd, '.npmrc');
   const npmignorePath = path.join(cwd, '.npmignore');
   const registryUrl   = pub.registryUrl || "registry.npmjs.org";
-  const d = JSON.parse(pub.denoConfig);
-  const m = JSON.parse(pub.manifest);
+  const d = JSON.parse(pub.denoConfig || "{}");
+  const m = JSON.parse(pub.manifest || "{}");
   // Merge deno.json and package.json contents.
   Object.assign(d, m);
   if (!m.imports) d.imports = undefined;
@@ -197,7 +196,7 @@ async function mirrorPackageNpm() {
     license,
     author,
   };
-  const deno = JSON.parse(denoConfig);
+  const deno = JSON.parse(denoConfig || "{}");
   const pkg  = `${deno.name}@${deno.version}`;
   await fetchPackageNpm(pkg, cwd);
   await publishPackageNpm(pub, man, cwd);
