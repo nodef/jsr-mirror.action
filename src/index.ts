@@ -1,8 +1,9 @@
-import * as os from "os";
-import * as fs from "fs";
+import * as os   from "os";
+import * as fs   from "fs";
 import * as path from "path";
-import * as core from "@actions/core";
-import * as exec from "@actions/exec";
+import * as core   from "@actions/core";
+import * as exec   from "@actions/exec";
+import * as github from "@actions/github";
 
 
 // TYPES
@@ -31,6 +32,10 @@ interface ManifestOptions {
 
 // GLOBALS
 const E = process.env;
+// const GITHUB_HEADERS = {
+//   'Accept': 'application/vnd.github.v3+json',
+//   'X-GitHub-Api-Version': '2022-11-28'
+// };
 
 
 // FUNCTIONS
@@ -76,6 +81,21 @@ async function execCommand(cmd: string, args?: string[], cwd?: string) {
 }
 
 
+/**
+ * Perform a GitHub API request.
+ * @param command The GitHub API command (e.g., "repos/owner/repo").
+ * @returns parsed response
+ */
+// async function fetchGithubApi(command: string) {
+//   const url = `https://api.github.com/${command}`;
+//   const headers = {...GITHUB_HEADERS};
+//   if (E.GITHUB_TOKEN) headers['Authorization'] = `Bearer ${E.GITHUB_TOKEN}`;
+//   const res = await fetch(url, {method: 'GET', headers});
+//   if (!res.ok) throw new Error(`GitHub API Error: ${res.status} ${res.statusText}`);
+//   return await res.json();
+// }
+
+
 // Fetch a JSR package as an NPM package, using JSR's NPM compatibility layer.
 async function fetchPackageNpm(pkg: string, cwd: string) {
   const manifestPath = path.join(cwd, 'package.json');
@@ -100,13 +120,26 @@ async function publishPackageNpm(pub: PublishOptions, man: ManifestOptions, cwd:
   const registryUrl   = pub.registryUrl || "registry.npmjs.org";
   const d = JSON.parse(pub.denoConfig);
   const m = JSON.parse(pub.manifest);
+  // Merge deno.json and package.json contents.
   Object.assign(d, m);
-  if (!m.imports) delete d.imports;
-  if (!m.exports) delete d.exports;
-  Object.assign(d, man);
-  delete d.registry;
-  delete d.registryToken;
-  delete d.registryUrl;
+  if (!m.imports) d.imports = undefined;
+  if (!m.exports) d.exports = undefined;
+  // Fill in manifest fields from inputs.
+  d.name        = d.name        || man.name;
+  d.version     = d.version     || man.version;
+  d.description = d.description || man.description;
+  d.keywords    = d.keywords    || man.keywords;
+  d.license     = d.license     || man.license;
+  d.author      = d.author      || man.author;
+  // Fetch missing fields from GitHub API.
+  if (!d.keywords || !d.author) {
+    const ctx     = github.context;
+    const octokit = github.getOctokit(E.GITHUB_TOKEN || "");
+    const { owner, repo } = ctx.repo;
+    const res  = await octokit.rest.repos.get({ owner, repo });
+    d.keywords = d.keywords || res.data.topics.join(",");
+    d.author   = d.author   || res.data.owner.email || res.data.owner.login;
+  }
   writeJsonFileSync(manifestPath, d);
   const npmPkg = `${d.name}@${d.version}`;
   core.info(`Publishing ${npmPkg} to NPM (${pub.registryUrl}) ...`);

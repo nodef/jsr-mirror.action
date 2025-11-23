@@ -1,6 +1,6 @@
 {
   "name": "jsr-mirror.action",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A GitHub Action for mirroring JavaScript Registry (JSR) packages to other registries.",
   "private": true,
   "main": "index.js",
@@ -30,6 +30,7 @@
   "devDependencies": {
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",
+    "@actions/github": "^6.0.1",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@types/node": "^24.10.1",
