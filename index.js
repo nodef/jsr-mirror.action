@@ -22870,10 +22870,8 @@ async function publishPackageNpm(pub, man, cwd) {
     const d = JSON.parse(pub.denoConfig || "{}");
     const m = JSON.parse(pub.manifest || "{}");
     Object.assign(d, m);
-    if (!m.imports)
-        d.imports = undefined;
-    if (!m.exports)
-        d.exports = undefined;
+    if (!m.publish)
+        d.publish = undefined;
     d.name = d.name || man.name;
     d.version = d.version || man.version;
     d.description = d.description || man.description;
@@ -22937,6 +22935,8 @@ async function mirrorPackageNpm() {
     const manifest = readTextFileSync(manifestPath);
     const npmrc = readTextFileSync(npmrcPath);
     const npmignore = readTextFileSync(npmignorePath);
+    if (registryToken.length < 4)
+        throw new Error("Registry token is required for publishing.");
     const pub = {
         denoConfig,
         manifest,

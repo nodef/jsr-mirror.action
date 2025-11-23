@@ -125,8 +125,7 @@ async function publishPackageNpm(pub: PublishOptions, man: ManifestOptions, cwd:
   const m = JSON.parse(pub.manifest || "{}");
   // Merge deno.json and package.json contents.
   Object.assign(d, m);
-  if (!m.imports) d.imports = undefined;
-  if (!m.exports) d.exports = undefined;
+  if (!m.publish) d.publish = undefined;
   // Fill in manifest fields from inputs.
   d.name        = d.name        || man.name;
   d.version     = d.version     || man.version;
@@ -195,6 +194,7 @@ async function mirrorPackageNpm() {
   const manifest    = readTextFileSync(manifestPath);
   const npmrc       = readTextFileSync(npmrcPath);
   const npmignore   = readTextFileSync(npmignorePath);
+  if (registryToken.length < 4) throw new Error("Registry token is required for publishing.");
   const pub: PublishOptions = {
     denoConfig,
     manifest,
