@@ -108,7 +108,7 @@ async function fetchPackageNpm(pkg: string, cwd: string) {
   core.info(`Setting up .npmrc for JSR registry ...`);
   const npmrc = `@jsr:registry=https://npm.jsr.io/\n`;
   writeTextFileSync(npmrcPath, npmrc);
-  core.info(`Contents of .npmrc:\n${npmrc}\n`);
+  core.info(`Contents of .npmrc:\n${npmrc}\n\n`);
   core.info(`Fetching ${pkg} ...`);
   await execCommand('npm', ['install', npmPkg], cwd);
   return readTextFileSync(manifestPath);
@@ -150,7 +150,7 @@ async function publishPackageNpm(pub: PublishOptions, man: ManifestOptions, cwd:
   }
   core.info(`Setting up package.json ...`);
   writeJsonFileSync(manifestPath, d);
-  core.info(`Contents of package.json:\n${JSON.stringify(d, null, 2)}\n`);
+  core.info(`Contents of package.json:\n${JSON.stringify(d, null, 2)}\n\n`);
   const npmPkg = `${d.name}@${d.version}`;
   let npmrc = pub.npmrc;
   npmrc = npmrc.trim() + "\n";
@@ -159,7 +159,7 @@ async function publishPackageNpm(pub: PublishOptions, man: ManifestOptions, cwd:
   npmrc += `//${registryUrl.replace(/^https?:\/\//, "")}/:_authToken=${pub.registryToken}\n`;
   core.info(`Setting up .npmrc ...`);
   writeTextFileSync(npmrcPath, npmrc);
-  core.info(`Contents of .npmrc:\n${npmrc}\n`);
+  core.info(`Contents of .npmrc:\n${npmrc}\n\n`);
   let npmignore = pub.npmignore;
   npmignore = npmignore.trim() + "\n";
   npmignore += "deno.json\n";
@@ -167,7 +167,7 @@ async function publishPackageNpm(pub: PublishOptions, man: ManifestOptions, cwd:
   npmignore += "deno.lock\n";
   core.info(`Setting up .npmignore ...`);
   writeTextFileSync(npmignorePath, npmignore);
-  core.info(`Contents of .npmignore:\n${npmignore}\n`);
+  core.info(`Contents of .npmignore:\n${npmignore}\n\n`);
   core.info(`Publishing ${npmPkg} to NPM (${pub.registryUrl}) ...`);
   await execCommand('npm', ['publish'], cwd);
   return readTextFileSync(manifestPath);
