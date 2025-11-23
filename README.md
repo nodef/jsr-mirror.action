@@ -18,6 +18,7 @@ A GitHub Action for mirroring JavaScript Registry ([JSR]) packages to other regi
   with:
     registry: 'npm'
     registry-token: ${{ secrets.NPM_TOKEN }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ```yaml
@@ -40,6 +41,7 @@ A GitHub Action for mirroring JavaScript Registry ([JSR]) packages to other regi
     registry: 'npm'
     registry-token: ${{ secrets.GITHUB_TOKEN }}
     registry-url: 'https://npm.pkg.github.com'
+    github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ```yaml
@@ -64,6 +66,7 @@ A GitHub Action for mirroring JavaScript Registry ([JSR]) packages to other regi
     registry: 'npm'                             # Target registry to mirror the JSR package to (REQUIRED)
     registry-token: ${{ secrets.NPM_TOKEN }}    # Token needed to publish to the target registry (REQUIRED)
     registry-url: 'https://npm.pkg.github.com'  # URL of the target registry
+    github-token: ${{ secrets.GITHUB_TOKEN }}   # GitHub token for fetching repository details, if needed
     deno-config-path: 'deno.json'               # Path to the Deno config file
     manifest-path: 'package.json'               # Path to the manifest file
     npmrc-path: '.npmrc'                        # Path to the npmrc file

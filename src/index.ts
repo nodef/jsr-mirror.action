@@ -16,6 +16,7 @@ interface PublishOptions {
   registry: string;
   registryToken: string;
   registryUrl?: string;
+  githubToken?: string;
 }
 
 
@@ -31,7 +32,7 @@ interface ManifestOptions {
 
 
 // GLOBALS
-const E = process.env;
+// const E = process.env;
 // const GITHUB_HEADERS = {
 //   'Accept': 'application/vnd.github.v3+json',
 //   'X-GitHub-Api-Version': '2022-11-28'
@@ -131,9 +132,9 @@ async function publishPackageNpm(pub: PublishOptions, man: ManifestOptions, cwd:
   d.license     = d.license     || man.license;
   d.author      = d.author      || man.author;
   // Fetch missing fields from GitHub API.
-  if (!d.keywords || !d.author) {
+  if ((!d.keywords || !d.author) && pub.githubToken) {
     const ctx     = github.context;
-    const octokit = github.getOctokit(E.GITHUB_TOKEN || "");
+    const octokit = github.getOctokit(pub.githubToken);
     const { owner, repo } = ctx.repo;
     const res  = await octokit.rest.repos.get({ owner, repo });
     d.keywords = d.keywords || res.data.topics.join(",");
@@ -165,6 +166,7 @@ async function mirrorPackageNpm() {
   const registry       = core.getInput("registry") || "npm";
   const registryToken  = core.getInput("registry-token") || "";
   const registryUrl    = core.getInput("registry-url") || "";
+  const githubToken    = core.getInput("github-token") || "";
   const manifestPath   = core.getInput("manifest-path") || "package.json";
   const npmrcPath      = core.getInput("npmrc-path") || ".npmrc";
   const npmignorePath  = core.getInput("npmignore-path") || ".npmignore";
@@ -187,6 +189,7 @@ async function mirrorPackageNpm() {
     registry,
     registryToken,
     registryUrl,
+    githubToken,
   };
   const man: ManifestOptions = {
     name,

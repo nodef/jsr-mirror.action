@@ -22822,7 +22822,6 @@ function requireGithub () {
 
 var githubExports = requireGithub();
 
-const E = process.env;
 function readTextFileSync(pth) {
     if (!fs__namespace.existsSync(pth))
         return "";
@@ -22878,9 +22877,9 @@ async function publishPackageNpm(pub, man, cwd) {
     d.keywords = d.keywords || man.keywords;
     d.license = d.license || man.license;
     d.author = d.author || man.author;
-    if (!d.keywords || !d.author) {
+    if ((!d.keywords || !d.author) && pub.githubToken) {
         const ctx = githubExports.context;
-        const octokit = githubExports.getOctokit(E.GITHUB_TOKEN || "");
+        const octokit = githubExports.getOctokit(pub.githubToken);
         const { owner, repo } = ctx.repo;
         const res = await octokit.rest.repos.get({ owner, repo });
         d.keywords = d.keywords || res.data.topics.join(",");
@@ -22909,6 +22908,7 @@ async function mirrorPackageNpm() {
     const registry = coreExports.getInput("registry") || "npm";
     const registryToken = coreExports.getInput("registry-token") || "";
     const registryUrl = coreExports.getInput("registry-url") || "";
+    const githubToken = coreExports.getInput("github-token") || "";
     const manifestPath = coreExports.getInput("manifest-path") || "package.json";
     const npmrcPath = coreExports.getInput("npmrc-path") || ".npmrc";
     const npmignorePath = coreExports.getInput("npmignore-path") || ".npmignore";
@@ -22931,6 +22931,7 @@ async function mirrorPackageNpm() {
         registry,
         registryToken,
         registryUrl,
+        githubToken,
     };
     const man = {
         name,
