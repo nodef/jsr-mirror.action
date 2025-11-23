@@ -8,10 +8,6 @@ runs:
   using: 'node16'
   main:  'index.js'
 inputs:
-  deno-config-path:
-    description: 'Path of the Deno config file (e.g., deno.json)'
-    required: false
-    default:  'deno.json'
   registry:
     description: 'Target registry to mirror the JSR package to'
     required: true
@@ -22,6 +18,10 @@ inputs:
     description: 'URL of the target registry (e.g., registry.npmjs.org for npm)'
     required: false
     default:  ''
+  deno-config-path:
+    description: 'Path of the Deno config file (e.g., deno.json)'
+    required: false
+    default:  'deno.json'
   manifest-path:
     description: 'Path of the manifest file (e.g., package.json)'
     required: false
