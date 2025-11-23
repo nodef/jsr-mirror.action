@@ -108,7 +108,7 @@ async function fetchPackageNpm(pkg: string, cwd: string) {
   core.info(`Setting up .npmrc for JSR registry ...`);
   const npmrc = `@jsr:registry=https://npm.jsr.io/\n`;
   writeTextFileSync(npmrcPath, npmrc);
-  core.info(`Contents of .npmrc:\n${npmrc}\n`);
+  core.info(`Contents of .npmrc:\n${npmrc}`);
   core.info(`Fetching ${pkg} ...`);
   await execCommand('npm', ['install', npmPkg], cwd);
   return readTextFileSync(manifestPath);
@@ -124,8 +124,10 @@ async function publishPackageNpm(pub: PublishOptions, man: ManifestOptions, cwd:
   const d = JSON.parse(pub.denoConfig || "{}");
   const m = JSON.parse(pub.manifest || "{}");
   // Merge deno.json and package.json contents.
+  if (d.publish) d.publish = undefined;
+  if (d.imports) d.imports = undefined;
+  if (d.exports) d.exports = undefined;
   Object.assign(d, m);
-  if (!m.publish) d.publish = undefined;
   // Fill in manifest fields from inputs.
   d.name        = man.name        || d.name;
   d.version     = man.version     || d.version;
@@ -143,30 +145,30 @@ async function publishPackageNpm(pub: PublishOptions, man: ManifestOptions, cwd:
       d.keywords = d.keywords || res.data.topics.join(",");
       d.author   = d.author   || res.data.owner.email || res.data.owner.login;
     }
-    catch (e) {
-      core.warning(`Failed to fetch data from GitHub API: ${e.message}`);
-    }
+    catch (e) { core.warning(`Failed to fetch data from GitHub API: ${e.message}`); }
   }
   core.info(`Setting up package.json ...`);
   writeJsonFileSync(manifestPath, d);
-  core.info(`Contents of package.json:\n${JSON.stringify(d, null, 2)}\n`);
+  core.info(`Contents of package.json:\n${JSON.stringify(d, null, 2)}`);
   const npmPkg = `${d.name}@${d.version}`;
   let npmrc = pub.npmrc;
   npmrc = npmrc.trim() + "\n";
   npmrc = npmrc.replace(/^\s*registry=\S+/g, "");
   npmrc = npmrc.replace(/^\s*\/\/\S+/g, "");
   npmrc += `//${registryUrl.replace(/^https?:\/\//, "")}/:_authToken=${pub.registryToken}\n`;
+  npmrc = npmrc.trim() + "\n";
   core.info(`Setting up .npmrc ...`);
   writeTextFileSync(npmrcPath, npmrc);
-  core.info(`Contents of .npmrc:\n${npmrc}\n`);
+  core.info(`Contents of .npmrc:\n${npmrc}`);
   let npmignore = pub.npmignore;
   npmignore = npmignore.trim() + "\n";
   npmignore += "deno.json\n";
   npmignore += "deno.jsonc\n";
   npmignore += "deno.lock\n";
+  npmignore = npmignore.trim() + "\n";
   core.info(`Setting up .npmignore ...`);
   writeTextFileSync(npmignorePath, npmignore);
-  core.info(`Contents of .npmignore:\n${npmignore}\n`);
+  core.info(`Contents of .npmignore:\n${npmignore}`);
   core.info(`Publishing ${npmPkg} to NPM (${registryUrl}) ...`);
   await execCommand('npm', ['publish'], cwd);
   return readTextFileSync(manifestPath);
