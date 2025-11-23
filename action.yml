@@ -1,26 +1,52 @@
-name: 'Configure npm'
-description: 'Configure npm by updating .npmrc file.'
+name: 'JSR Mirror'
+description: 'A GitHub Action for mirroring JavaScript Registry (JSR) packages to other registries.'
 branding:
-  color: red
-  icon: settings
+  color: yellow
+  icon: package
 
 runs:
   using: 'node16'
   main:  'index.js'
 inputs:
-  path:
-    description: 'Path of .npmrc file'
+  deno-config-path:
+    description: 'Path of the Deno config file (e.g., deno.json)'
+    required: false
+    default:  'deno.json'
+  registry:
+    description: 'Target registry to mirror the JSR package to'
+    required: true
+  registry-token:
+    description: 'Token needed to publish to the target registry'
+    required: true
+  registry-url:
+    description: 'URL of the target registry (e.g., https://registry.npmjs.org/ for npm)'
     required: false
     default:  ''
-  reset:
-    description: 'Reset .npmrc file?'
+  manifest-path:
+    description: 'Path of the manifest file (e.g., package.json)'
     required: false
-    default:  false
-  credentials:
-    description: 'List of registries and associated auth-tokens (newline separated)'
+    default:  'package.json'
+  name:
+    description: 'Name of the package in the target registry'
     required: false
     default:  ''
-  entries:
-    description: 'List of entries to add to .npmrc file (newline separated)'
+  version:
+    description: 'Version of the package in the target registry'
+    required: false
+    default:  ''
+  description:
+    description: 'Description of the package in the target registry'
+    required: false
+    default:  ''
+  keywords:
+    description: 'Keywords of the package in the target registry (comma separated)'
+    required: false
+    default:  ''
+  license:
+    description: 'License of the package in the target registry'
+    required: false
+    default:  ''
+  author:
+    description: 'Author of the package in the target registry'
     required: false
     default:  ''

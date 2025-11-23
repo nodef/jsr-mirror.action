@@ -1,4 +1,4 @@
-A GitHub Action for configuring npm.
+A GitHub Action for mirroring JavaScript Registry (JSR) packages to other registries.
 
 ```yaml
 # Configure credentials for npm and GitHub Packages.
