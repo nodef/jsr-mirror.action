@@ -1,0 +1,26 @@
+name: 'Configure npm'
+description: 'Configure npm by updating .npmrc file.'
+branding:
+  color: red
+  icon: settings
+
+runs:
+  using: 'node16'
+  main:  'index.js'
+inputs:
+  path:
+    description: 'Path of .npmrc file'
+    required: false
+    default:  ''
+  reset:
+    description: 'Reset .npmrc file?'
+    required: false
+    default:  false
+  credentials:
+    description: 'List of registries and associated auth-tokens (newline separated)'
+    required: false
+    default:  ''
+  entries:
+    description: 'List of entries to add to .npmrc file (newline separated)'
+    required: false
+    default:  ''
