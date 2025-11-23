@@ -101,12 +101,15 @@ async function execCommand(cmd: string, args?: string[], cwd?: string) {
 async function fetchPackageNpm(pkg: string, cwd: string) {
   const manifestPath = path.join(cwd, 'package.json');
   const npmrcPath = path.join(cwd, '.npmrc');
-  core.info(`Fetching ${pkg} ...`);
   const [, scope, name, ver] = /@(.+)\/(.+)(?:@(.+))/.exec(pkg);
   const npmPkg = `@jsr/${scope}__${name}` + (ver ? `@${ver}` : "");
   fs.rmSync(npmrcPath, { recursive: true, force: true });
   fs.rmSync(manifestPath, { recursive: true, force: true });
-  writeTextFileSync(npmrcPath, `@jsr:registry=https://npm.jsr.io/\n`);
+  core.info(`Setting up .npmrc for JSR registry ...`);
+  const npmrc = `@jsr:registry=https://npm.jsr.io/\n`;
+  writeTextFileSync(npmrcPath, npmrc);
+  core.info(`Contents of .npmrc:\n${npmrc}\n`);
+  core.info(`Fetching ${pkg} ...`);
   await execCommand('npm', ['install', npmPkg], cwd);
   return readTextFileSync(manifestPath);
 }
@@ -133,28 +136,39 @@ async function publishPackageNpm(pub: PublishOptions, man: ManifestOptions, cwd:
   d.author      = d.author      || man.author;
   // Fetch missing fields from GitHub API.
   if ((!d.keywords || !d.author) && pub.githubToken) {
-    const ctx     = github.context;
-    const octokit = github.getOctokit(pub.githubToken);
-    const { owner, repo } = ctx.repo;
-    const res  = await octokit.rest.repos.get({ owner, repo });
-    d.keywords = d.keywords || res.data.topics.join(",");
-    d.author   = d.author   || res.data.owner.email || res.data.owner.login;
+    try {
+      const ctx     = github.context;
+      const octokit = github.getOctokit(pub.githubToken);
+      const { owner, repo } = ctx.repo;
+      const res  = await octokit.rest.repos.get({ owner, repo });
+      d.keywords = d.keywords || res.data.topics.join(",");
+      d.author   = d.author   || res.data.owner.email || res.data.owner.login;
+    }
+    catch (e) {
+      core.warning(`Failed to fetch data from GitHub API: ${e.message}`);
+    }
   }
+  core.info(`Setting up package.json ...`);
   writeJsonFileSync(manifestPath, d);
+  core.info(`Contents of package.json:\n${JSON.stringify(d, null, 2)}\n`);
   const npmPkg = `${d.name}@${d.version}`;
-  core.info(`Publishing ${npmPkg} to NPM (${pub.registryUrl}) ...`);
   let npmrc = pub.npmrc;
   npmrc = npmrc.trim() + "\n";
   npmrc = npmrc.replace(/^\s*registry=\S+/g, "");
   npmrc = npmrc.replace(/^\s*\/\/\S+/g, "");
   npmrc += `//${registryUrl.replace(/^https?:\/\//, "")}/:_authToken=${pub.registryToken}\n`;
+  core.info(`Setting up .npmrc ...`);
   writeTextFileSync(npmrcPath, npmrc);
+  core.info(`Contents of .npmrc:\n${npmrc}\n`);
   let npmignore = pub.npmignore;
   npmignore = npmignore.trim() + "\n";
   npmignore += "deno.json\n";
   npmignore += "deno.jsonc\n";
   npmignore += "deno.lock\n";
+  core.info(`Setting up .npmignore ...`);
   writeTextFileSync(npmignorePath, npmignore);
+  core.info(`Contents of .npmignore:\n${npmignore}\n`);
+  core.info(`Publishing ${npmPkg} to NPM (${pub.registryUrl}) ...`);
   await execCommand('npm', ['publish'], cwd);
   return readTextFileSync(manifestPath);
 }
