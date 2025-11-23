@@ -63,7 +63,7 @@ function readJsonFileSync(pth: string): any {
 
 // Write a JSON file.
 function writeJsonFileSync(pth: string, obj: any): void {
-  writeTextFileSync(pth, JSON.stringify(obj, null, 2));
+  writeTextFileSync(pth, JSON.stringify(obj, null, 2) + "\n");
 }
 
 

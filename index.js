@@ -22833,7 +22833,7 @@ function writeTextFileSync(pth, txt) {
     fs__namespace.writeFileSync(pth, txt);
 }
 function writeJsonFileSync(pth, obj) {
-    writeTextFileSync(pth, JSON.stringify(obj, null, 2));
+    writeTextFileSync(pth, JSON.stringify(obj, null, 2) + "\n");
 }
 async function execCommand(cmd, args, cwd) {
     let stdout = "";
