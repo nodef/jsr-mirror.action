@@ -22857,7 +22857,7 @@ async function fetchPackageNpm(pkg, cwd) {
     coreExports.info(`Setting up .npmrc for JSR registry ...`);
     const npmrc = `@jsr:registry=https://npm.jsr.io/\n`;
     writeTextFileSync(npmrcPath, npmrc);
-    coreExports.info(`Contents of .npmrc:\n${npmrc}\n\n`);
+    coreExports.info(`Contents of .npmrc:\n${npmrc}\n`);
     coreExports.info(`Fetching ${pkg} ...`);
     await execCommand('npm', ['install', npmPkg], cwd);
     return readTextFileSync(manifestPath);
@@ -22872,12 +22872,12 @@ async function publishPackageNpm(pub, man, cwd) {
     Object.assign(d, m);
     if (!m.publish)
         d.publish = undefined;
-    d.name = d.name || man.name;
-    d.version = d.version || man.version;
-    d.description = d.description || man.description;
-    d.keywords = d.keywords || man.keywords;
-    d.license = d.license || man.license;
-    d.author = d.author || man.author;
+    d.name = man.name || d.name;
+    d.version = man.version || d.version;
+    d.description = man.description || d.description;
+    d.keywords = man.keywords || d.keywords;
+    d.license = man.license || d.license;
+    d.author = man.author || d.author;
     if ((!d.keywords || !d.author) && pub.githubToken) {
         try {
             const ctx = githubExports.context;
@@ -22893,7 +22893,7 @@ async function publishPackageNpm(pub, man, cwd) {
     }
     coreExports.info(`Setting up package.json ...`);
     writeJsonFileSync(manifestPath, d);
-    coreExports.info(`Contents of package.json:\n${JSON.stringify(d, null, 2)}\n\n`);
+    coreExports.info(`Contents of package.json:\n${JSON.stringify(d, null, 2)}\n`);
     const npmPkg = `${d.name}@${d.version}`;
     let npmrc = pub.npmrc;
     npmrc = npmrc.trim() + "\n";
@@ -22902,7 +22902,7 @@ async function publishPackageNpm(pub, man, cwd) {
     npmrc += `//${registryUrl.replace(/^https?:\/\//, "")}/:_authToken=${pub.registryToken}\n`;
     coreExports.info(`Setting up .npmrc ...`);
     writeTextFileSync(npmrcPath, npmrc);
-    coreExports.info(`Contents of .npmrc:\n${npmrc}\n\n`);
+    coreExports.info(`Contents of .npmrc:\n${npmrc}\n`);
     let npmignore = pub.npmignore;
     npmignore = npmignore.trim() + "\n";
     npmignore += "deno.json\n";
@@ -22910,8 +22910,8 @@ async function publishPackageNpm(pub, man, cwd) {
     npmignore += "deno.lock\n";
     coreExports.info(`Setting up .npmignore ...`);
     writeTextFileSync(npmignorePath, npmignore);
-    coreExports.info(`Contents of .npmignore:\n${npmignore}\n\n`);
-    coreExports.info(`Publishing ${npmPkg} to NPM (${pub.registryUrl}) ...`);
+    coreExports.info(`Contents of .npmignore:\n${npmignore}\n`);
+    coreExports.info(`Publishing ${npmPkg} to NPM (${registryUrl}) ...`);
     await execCommand('npm', ['publish'], cwd);
     return readTextFileSync(manifestPath);
 }
