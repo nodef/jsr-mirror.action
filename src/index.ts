@@ -105,7 +105,7 @@ async function fetchPackageNpm(pkg: string, cwd: string) {
   const npmPkg = `@jsr/${scope}__${name}` + (ver ? `@${ver}` : "");
   fs.rmSync(npmrcPath, { recursive: true, force: true });
   fs.rmSync(manifestPath, { recursive: true, force: true });
-  writeTextFileSync(npmrcPath, `registry=@jsr:registry=https://npm.jsr.io\n`);
+  writeTextFileSync(npmrcPath, `@jsr:registry=https://npm.jsr.io/\n`);
   await execCommand('npm', ['init', '-y'], cwd);
   await execCommand('npm', ['install', npmPkg], cwd);
   return readTextFileSync(manifestPath);
