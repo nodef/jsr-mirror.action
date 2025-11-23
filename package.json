@@ -1,6 +1,6 @@
 {
   "name": "jsr-mirror.action",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A GitHub Action for mirroring JavaScript Registry (JSR) packages to other registries.",
   "private": true,
   "main": "index.js",
@@ -28,11 +28,11 @@
   },
   "homepage": "https://github.com/nodef/jsr-mirror.action#readme",
   "devDependencies": {
-    "@actions/core": "^1.10.0",
+    "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",
-    "@rollup/plugin-commonjs": "^24.0.1",
-    "@rollup/plugin-node-resolve": "^15.0.2",
-    "@types/node": "^18.15.11",
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@types/node": "^24.10.1",
     "rollup-plugin-cleanup": "^3.2.1"
   }
 }
