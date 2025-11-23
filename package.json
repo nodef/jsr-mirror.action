@@ -30,5 +30,8 @@
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@types/node": "^18.15.11",
     "rollup-plugin-cleanup": "^3.2.1"
+  },
+  "dependencies": {
+    "@actions/exec": "^1.1.1"
   }
 }
